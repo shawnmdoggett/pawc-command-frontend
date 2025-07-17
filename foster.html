@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Foster a Pack Member</title>
+  <link rel="stylesheet" href="/static/styles/foster.css" />
+</head>
+<body>
+  <div class="foster-container">
+    <h1>❤️ Foster a Pet</h1>
+    <div id="petList" class="pet-grid"></div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("jwt");
+
+    async function loadPets() {
+      const res = await fetch("/api/pets", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const pets = await res.json();
+
+      const grid = document.getElementById("petList");
+      pets.forEach(pet => {
+        const card = document.createElement("div");
+        card.className = "pet-card";
+        card.innerHTML = `
+          <img src="${pet.image_url}" alt="${pet.name}" />
+          <h3>${pet.name}</h3>
+          <p>Breed: ${pet.breed}</p>
+          <p>Species: ${pet.species}</p>
+          <p>Age: ${pet.age}</p>
+          <button onclick="applyFoster(${pet.id})">Apply to Foster</button>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    async function applyFoster(petId) {
+      const res = await fetch("/api/foster", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ pet_id: petId })
+      });
+      const result = await res.json();
+      alert(result.message || result.error);
+    }
+
+    loadPets();
+  </script>
+</body>
+</html>
