@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PAWC Command Dashboard</title>
+  <link rel="stylesheet" href="/static/styles/dashboard.css" />
+  <script type="module" src="/static/js/wallet.js"></script>
+</head>
+<body>
+  <div class="dashboard-container">
+    <h1>🐾 Welcome to Your Pack Command Center</h1>
+    <div id="user-info">
+      <p><strong>Username:</strong> <span id="username"></span></p>
+      <p><strong>Role:</strong> <span id="role"></span></p>
+      <p><strong>PackRank:</strong> <span id="rank"></span></p>
+      <p><strong>Pets Registered:</strong> <span id="petCount"></span></p>
+      <p><strong>PAWC Mined:</strong> <span id="pawcMined"></span></p>
+      <p><strong>Wallet Address:</strong> <span id="wallet"></span></p>
+      <p><strong>Live Balance:</strong> <span id="liveBalance">Loading...</span> PAWC</p>
+    </div>
+    <button id="refresh">🔄 Refresh Balance</button>
+  </div>
+
+  <script type="module">
+    import { connectWallet, getPAWCBalance } from "/static/js/wallet.js";
+
+    async function loadDashboard() {
+      const token = localStorage.getItem("jwt");
+      const res = await fetch("/dashboard", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+
+      document.getElementById("username").textContent = data.username;
+      document.getElementById("role").textContent = data.role;
+      document.getElementById("rank").textContent = data.packRank;
+      document.getElementById("petCount").textContent = data.petCount;
+      document.getElementById("pawcMined").textContent = data.pawcMined;
+      document.getElementById("wallet").textContent = data.wallet;
+
+      const balance = await getPAWCBalance(data.wallet);
+      document.getElementById("liveBalance").textContent = balance;
+    }
+
+    document.getElementById("refresh").addEventListener("click", async () => {
+      const wallet = document.getElementById("wallet").textContent;
+      const balance = await getPAWCBalance(wallet);
+      document.getElementById("liveBalance").textContent = balance;
+    });
+
+    loadDashboard();
+  </script>
+</body>
+</html>
