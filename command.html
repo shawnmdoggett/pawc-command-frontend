@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PAWC Command Center</title>
+  <link rel="stylesheet" href="/static/styles/command.css" />
+</head>
+<body>
+  <div class="command-container">
+    <h1>🧭 Pack Command Center</h1>
+    <div class="stats">
+      <p><strong>Pets Registered:</strong> <span id="pets"></span></p>
+      <p><strong>Owners Registered:</strong> <span id="owners"></span></p>
+      <p><strong>Total Donations:</strong> $<span id="donations"></span></p>
+      <p><strong>Active Alerts:</strong> <span id="alerts"></span></p>
+      <p><strong>Active Subscriptions:</strong> <span id="subs"></span></p>
+    </div>
+    <h2>📍 Recent GPS Locations</h2>
+    <ul id="locationFeed"></ul>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("jwt");
+
+    async function loadCommandData() {
+      const res = await fetch("/api/command", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+
+      if (data.error) return alert("Access denied.");
+
+      document.getElementById("pets").textContent = data.pets_registered;
+      document.getElementById("owners").textContent = data.owners_registered;
+      document.getElementById("donations").textContent = data.total_donations;
+      document.getElementById("alerts").textContent = data.active_alerts;
+      document.getElementById("subs").textContent = data.active_subscriptions;
+
+      const feed = document.getElementById("locationFeed");
+      data.recent_locations.forEach(loc => {
+        const li = document.createElement("li");
+        li.textContent = `Pet ${loc.pet_id} at (${loc.lat}, ${loc.lng}) on ${loc.timestamp}`;
+        feed.appendChild(li);
+      });
+    }
+
+    loadCommandData();
+  </script>
+</body>
+</html>
