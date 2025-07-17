@@ -1,0 +1,25 @@
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #f5f5f5;
+  padding: 2rem;
+}
+
+.command-container {
+  max-width: 800px;
+  margin: auto;
+}
+
+.stats p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+}
+
+ul#locationFeed {
+  margin-top: 1rem;
+  padding-left: 1rem;
+}
+
+ul#locationFeed li {
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
