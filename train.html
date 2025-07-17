@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pack Training Center</title>
+  <link rel="stylesheet" href="/static/styles/train.css" />
+</head>
+<body>
+  <div class="train-container">
+    <h1>📘 Pack Training Curriculum</h1>
+    <div id="classList" class="class-grid"></div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("jwt");
+
+    async function loadClasses() {
+      const res = await fetch("/api/classes", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const classes = await res.json();
+
+      const grid = document.getElementById("classList");
+      classes.forEach(cls => {
+        const card = document.createElement("div");
+        card.className = "class-card";
+        card.innerHTML = `
+          <h3>${cls.title}</h3>
+          <p>${cls.description}</p>
+          <p>Level: ${cls.level}</p>
+          <p>Duration: ${cls.duration_days} days</p>
+          <p>Price: ${cls.price_pawc} PAWC</p>
+          <button onclick="enroll(${cls.id})">Enroll</button>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    async function enroll(classId) {
+      const res = await fetch("/api/enroll", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ class_id: classId })
+      });
+      const result = await res.json();
+      alert(result.message || result.error);
+    }
+
+    loadClasses();
+  </script>
+</body>
+</html>
