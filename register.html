@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Join the Pack</title>
+  <link rel="stylesheet" href="/static/styles/auth.css" />
+</head>
+<body>
+  <div class="auth-container">
+    <h1>🐾 Register for PAWC Command</h1>
+    <form id="registerForm">
+      <input type="text" placeholder="Username" name="username" required />
+      <input type="email" placeholder="Email" name="email" />
+      <input type="password" placeholder="Password" name="password" required />
+      <button type="submit">Join the Pack</button>
+    </form>
+    <p>Already registered? <a href="/login.html">Login here</a></p>
+  </div>
+
+  <script>
+    document.getElementById("registerForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: form.username.value,
+          email: form.email.value,
+          password: form.password.value
+        })
+      });
+      const data = await res.json();
+      if (data.token) {
+        localStorage.setItem("jwt", data.token);
+        window.location.href = "/dashboard.html";
+      } else {
+        alert(data.msg || "Registration failed.");
+      }
+    });
+  </script>
+</body>
+</html>
