@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PAWC Shop</title>
+  <link rel="stylesheet" href="/static/styles/shop.css" />
+  <script type="module" src="/static/js/wallet.js"></script>
+</head>
+<body>
+  <div class="shop-container">
+    <h1>🛒 Welcome to the Pack Store</h1>
+    <p><strong>Wallet Address:</strong> <span id="wallet">Loading...</span></p>
+    <p><strong>Balance:</strong> <span id="balance">Loading...</span> PAWC</p>
+    <div id="catalog" class="product-grid"></div>
+  </div>
+
+  <script type="module">
+    import { connectWallet, getPAWCBalance } from "/static/js/wallet.js";
+
+    let walletAddress = "";
+
+    async function initShop() {
+      const walletData = await connectWallet();
+      walletAddress = walletData.address;
+      document.getElementById("wallet").textContent = walletAddress;
+
+      const balance = await getPAWCBalance(walletAddress);
+      document.getElementById("balance").textContent = balance;
+
+      const res = await fetch("/api/products");
+      const products = await res.json();
+
+      const grid = document.getElementById("catalog");
+      products.forEach(prod => {
+        const card = document.createElement("div");
+        card.className = "product-card";
+        card.innerHTML = `
+          <img src="${prod.image_url}" alt="${prod.name}" />
+          <h3>${prod.name}</h3>
+          <p>${prod.description}</p>
+          <p>Price: ${prod.price_pawc} PAWC</p>
+          <button onclick="orderPAWC(${prod.id})">Buy with PAWC</button>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    window.orderPAWC = async function(productId) {
+      const token = localStorage.getItem("jwt");
+      const order = await fetch("/api/order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          product_id: productId,
+          quantity: 1,
+          paid_in: "PAWC"
+        })
+      });
+      const result = await order.json();
+      alert(result.message || "Order completed.");
+    };
+
+    initShop();
+  </script>
+</body>
+</html>
