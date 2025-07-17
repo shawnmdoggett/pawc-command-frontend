@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Donate to the Pack</title>
+  <link rel="stylesheet" href="/static/styles/donate.css" />
+  <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+  <div class="donate-container">
+    <h1>💸 Support the Pack</h1>
+    <form id="donationForm">
+      <input type="number" name="amount" placeholder="Amount (USD)" required />
+      <button type="submit">Donate</button>
+    </form>
+    <h2>Recent Donations</h2>
+    <ul id="donationFeed"></ul>
+  </div>
+
+  <script>
+    const stripe = Stripe("pk_test_REPLACE_WITH_YOUR_PUBLIC_KEY");
+
+    document.getElementById("donationForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const amount = e.target.amount.value;
+      const token = localStorage.getItem("jwt");
+
+      const res = await fetch("/api/donate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ amount: parseFloat(amount) })
+      });
+
+      const data = await res.json();
+      if (data.clientSecret) {
+        const result = await stripe.confirmCardPayment(data.clientSecret, {
+          payment_method: {
+            card: {
+              // You can embed Stripe Elements here
+            }
+          }
+        });
+        alert("Donation submitted!");
+      } else {
+        alert(data.error || "Donation failed.");
+      }
+    });
+
+    async function loadDonations() {
+      const res = await fetch("/api/donations");
+      const feed = await res.json();
+      const ul = document.getElementById("donationFeed");
+      feed.forEach(d => {
+        const li = document.createElement("li");
+        li.textContent = `${d.username} donated $${d.amount_usd} on ${d.timestamp}`;
+        ul.appendChild(li);
+      });
+    }
+
+    loadDonations();
+  </script>
+</body>
+</html>
