@@ -1,0 +1,43 @@
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #e6f7ff;
+  padding: 2rem;
+}
+
+.game-container {
+  max-width: 700px;
+  margin: auto;
+  text-align: center;
+}
+
+canvas {
+  border: 2px solid #0077cc;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+select, button {
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+button {
+  background: #0077cc;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+#status {
+  font-size: 0.95rem;
+  color: #333;
+}
