@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pack Simulation Game</title>
+  <link rel="stylesheet" href="/static/styles/game.css" />
+</head>
+<body>
+  <div class="game-container">
+    <h1>🎮 Care for Your Pack</h1>
+    <canvas id="gameCanvas" width="600" height="400"></canvas>
+    <div class="controls">
+      <select id="petSelect"></select>
+      <button onclick="triggerAction('feed')">🍖 Feed</button>
+      <button onclick="triggerAction('walk')">🚶 Walk</button>
+      <button onclick="triggerAction('bath')">🛁 Bathe</button>
+      <button onclick="triggerAction('groom')">✂️ Groom</button>
+    </div>
+    <p id="status">Select a pet and begin care.</p>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("jwt");
+
+    async function loadPets() {
+      const res = await fetch("/api/pets", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const pets = await res.json();
+      const select = document.getElementById("petSelect");
+      pets.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p.id;
+        opt.textContent = p.name;
+        select.appendChild(opt);
+      });
+    }
+
+    async function triggerAction(action) {
+      const petId = document.getElementById("petSelect").value;
+      if (!petId) return alert("Select a pet first.");
+
+      const res = await fetch("/api/game/action", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ pet_id: parseInt(petId), action })
+      });
+      const result = await res.json();
+      document.getElementById("status").textContent = result.message || "Action complete.";
+    }
+
+    // Placeholder canvas logic (can be replaced with sprite engine)
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#f0f0f0";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.font = "20px Arial";
+    ctx.fillStyle = "#333";
+    ctx.fillText("🐶 Your pet awaits...", 180, 200);
+
+    loadPets();
+  </script>
+</body>
+</html>
